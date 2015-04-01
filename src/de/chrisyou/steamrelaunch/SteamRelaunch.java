@@ -135,6 +135,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 				props.load(readConfig);
 				txtSteamPath.setText(props.getProperty("path"));
 				readConfig.close();
+				fileSteam = new File(txtSteamPath.getText());
 			}
 			
 		} catch (IOException e) {
@@ -168,7 +169,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			fc.setDialogTitle("Browse to Steam.exe..");			
 			int returnVal = fc.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				fileSteam = fc.getSelectedFile();				
+				fileSteam = fc.getSelectedFile();			
 				if(fileSteam.getName().equals("Steam.exe")){					
 					txtSteamPath.setText(fileSteam.getAbsolutePath());
 					saveProps();
@@ -189,7 +190,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 		try {
 			if(boolSteamRunning()){
 				Runtime.getRuntime().exec("cmd /c start "+ fileSteam.getAbsolutePath() + " -shutdown");
-				Thread.sleep(1500);
+				Thread.sleep(2000);
 			}
 
 			Runtime.getRuntime().exec("cmd /c start "+ fileSteam.getAbsolutePath() + " -login "+data[0] + " " + data[1]);
