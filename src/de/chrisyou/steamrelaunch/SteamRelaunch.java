@@ -24,9 +24,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,10 +55,17 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 	/**
 	 * @param args
 	 */
+	/*
+	 * VARIABLE BELOW IS THE KEY THAT WILL BE USED TO ENCRYPT FILES
+	 * ONLY USE 16,24,32 CHARS LONG KEY PHRASES
+	 */
+	private String strKey = "Sd42VdNbdzGrdSnu"; 
 	private JButton btnLogin1, btnLogin2, btnShutdown, btnBrowse;
 	private JTextField txtAccinfo1, txtAccinfo2, txtSteamPath;
 	private JLabel lblAcc1, lblAcc2, lblSteamPath;
 	private File fileSteam, fileConfig;
+	private SecretKeySpec secKey;
+	private JCheckBox chkEncrypt;	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new SteamRelaunch();
@@ -119,6 +136,14 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		getContentPane().add(btnLogin2, gbc);
 
+		chkEncrypt = new JCheckBox("Encrypt and locally save accounts?");
+		chkEncrypt.setSelected(false);
+		chkEncrypt.addActionListener(this);
+		chkEncrypt.setActionCommand("chk");
+		gbc.gridx = 1;
+		gbc.gridy = 4;
+		gbc.weightx = 1.5;
+		getContentPane().add(chkEncrypt, gbc);
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -132,12 +157,14 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			if(fileConfig.exists()){
 				Properties props = new Properties();
 				FileReader readConfig = new FileReader(fileConfig);
-				props.load(readConfig);
-				txtSteamPath.setText(props.getProperty("path"));
+				props.load(readConfig);				
 				readConfig.close();
+				txtSteamPath.setText(props.getProperty("path"));
+				txtAccinfo1.setText(handleCrypto(false,props.getProperty("accinfo1")));
+				txtAccinfo2.setText(handleCrypto(false,props.getProperty("accinfo2")));
 				fileSteam = new File(txtSteamPath.getText());
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,6 +177,11 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			Properties props = new Properties();			
 			output = new FileOutputStream("config.properties");
 			props.setProperty("path", txtSteamPath.getText());
+			if(chkEncrypt.isSelected()){
+				props.setProperty("accinfo1", handleCrypto(true,txtAccinfo1.getText()));
+				props.setProperty("accinfo2", handleCrypto(true,txtAccinfo2.getText()));
+			}
+			
 			props.store(output, null);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -158,7 +190,49 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+	}
+	private String handleCrypto(boolean way, String input) {
+		// TODO Auto-generated method stub		
+		try {
+			secKey = new SecretKeySpec(strKey.getBytes(),"AES");
+			byte[] byteInput = input.getBytes("ISO-8859-1");
+			Cipher cryptor = Cipher.getInstance("AES");
+			if(way){
+				//ENCRYPT
+				cryptor.init(Cipher.ENCRYPT_MODE, secKey);
+				byte[] byteEncrypted = cryptor.doFinal(byteInput);
+				String strOutput = new String(byteEncrypted,"ISO-8859-1");				
+				return strOutput;
+				
+			}else{
+				//DECRYPT
+				cryptor.init(Cipher.DECRYPT_MODE, secKey);
+				byte[] byteDecrypted = cryptor.doFinal(byteInput);
+				String strOutput = new String(byteDecrypted,"ISO-8859-1");				
+				return strOutput;
+
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	public void actionPerformed(ActionEvent evt) {
 		// TODO Auto-generated method stub
@@ -181,9 +255,11 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			login(txtAccinfo1.getText());
 		}else if(evt.getActionCommand().equalsIgnoreCase(btnLogin2.getActionCommand())){
 			login(txtAccinfo2.getText());
+		}else if(evt.getActionCommand().equalsIgnoreCase(chkEncrypt.getActionCommand())){
+
 		}
 	}
-	
+
 	private void login(String info) {
 		// TODO Auto-generated method stub
 		String[] data = info.split(":");
@@ -194,6 +270,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			}
 
 			Runtime.getRuntime().exec("cmd /c start "+ fileSteam.getAbsolutePath() + " -login "+data[0] + " " + data[1]);
+			saveProps();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
