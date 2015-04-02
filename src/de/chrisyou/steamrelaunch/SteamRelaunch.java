@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -33,7 +32,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -60,7 +58,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 	 * ONLY USE 16,24,32 CHARS LONG KEY PHRASES
 	 */
 	private String strKey = "Sd42VdNbdzGrdSnu"; 
-	private JButton btnLogin1, btnLogin2, btnShutdown, btnBrowse;
+	private JButton btnLogin1, btnLogin2, btnBrowse;
 	private JTextField txtAccinfo1, txtAccinfo2, txtSteamPath;
 	private JLabel lblAcc1, lblAcc2, lblSteamPath;
 	private File fileSteam, fileConfig;
