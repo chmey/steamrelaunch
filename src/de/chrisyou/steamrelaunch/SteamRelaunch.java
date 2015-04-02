@@ -160,8 +160,12 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 				props.load(readConfig);				
 				readConfig.close();
 				txtSteamPath.setText(props.getProperty("path"));
-				txtAccinfo1.setText(handleCrypto(false,props.getProperty("accinfo1")));
-				txtAccinfo2.setText(handleCrypto(false,props.getProperty("accinfo2")));
+				if(!(props.getProperty("accinfo1") == null)){
+					txtAccinfo1.setText(handleCrypto(false,props.getProperty("accinfo1")));
+				}
+				if(!(props.getProperty("accinfo2") == null)){
+					txtAccinfo2.setText(handleCrypto(false,props.getProperty("accinfo2")));
+				}				
 				fileSteam = new File(txtSteamPath.getText());
 			}
 
@@ -180,8 +184,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 			if(chkEncrypt.isSelected()){
 				props.setProperty("accinfo1", handleCrypto(true,txtAccinfo1.getText()));
 				props.setProperty("accinfo2", handleCrypto(true,txtAccinfo2.getText()));
-			}
-			
+			}			
 			props.store(output, null);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
