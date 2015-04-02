@@ -207,7 +207,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 				byte[] byteEncrypted = cryptor.doFinal(byteInput);
 				String strOutput = new String(byteEncrypted,"ISO-8859-1");				
 				return strOutput;
-				
+
 			}else{
 				//DECRYPT
 				cryptor.init(Cipher.DECRYPT_MODE, secKey);
@@ -268,11 +268,11 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 		String[] data = info.split(":");
 		try {
 			if(boolSteamRunning()){
-				Runtime.getRuntime().exec("cmd /c start "+ fileSteam.getAbsolutePath() + " -shutdown");
+				Runtime.getRuntime().exec("cmd /c \""+ fileSteam.getAbsolutePath() + "\" -shutdown");				
 				Thread.sleep(2000);
 			}
 
-			Runtime.getRuntime().exec("cmd /c start "+ fileSteam.getAbsolutePath() + " -login "+data[0] + " " + data[1]);
+			Runtime.getRuntime().exec("cmd /c \""+ fileSteam.getAbsolutePath() + "\" -login "+data[0] + " " + data[1]);
 			saveProps();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -283,7 +283,7 @@ public class SteamRelaunch extends JFrame implements ActionListener{
 		}
 
 
-	}
+	}	
 	private boolean boolSteamRunning() {
 		// TODO Auto-generated method stub
 		try {
