@@ -11,5 +11,5 @@ v1.1 - Steam Relaunch Tool allows saving the account information
 
 v1.0 - first release, Steam Relaunch (Lite) without saving
 ### Download
-https://github.com/chrisyou/steamrelaunch/releases
+https://github.com/chmey/steamrelaunch/releases
 
